@@ -1,11 +1,14 @@
 package com.sasmit.researchpaperassistant.api.v1.controllers;
 
 import com.sasmit.researchpaperassistant.api.dto.request.AnalyzePaperRequest;
+import com.sasmit.researchpaperassistant.api.dto.request.AskQuestionRequest;
 import com.sasmit.researchpaperassistant.api.dto.response.JobStatusResponse;
 import com.sasmit.researchpaperassistant.api.dto.response.PaperAnalysisResponse;
+import com.sasmit.researchpaperassistant.api.dto.response.QuestionResponse;
 import com.sasmit.researchpaperassistant.core.domain.model.Paper;
 import com.sasmit.researchpaperassistant.core.domain.model.PaperAnalysis;
 import com.sasmit.researchpaperassistant.core.ports.in.AnalyzePaperUseCase;
+import com.sasmit.researchpaperassistant.core.ports.out.AiSummaryService;
 import com.sasmit.researchpaperassistant.core.ports.out.PaperRepository;
 import com.sasmit.researchpaperassistant.core.ports.out.ArxivClient;
 import com.sasmit.researchpaperassistant.core.ports.out.PdfExtractor;
@@ -17,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -33,6 +39,7 @@ public class PaperController {
     private final AnalyzePaperUseCase analyzePaperUseCase;
     private final PaperRepository paperRepository;
     private final ArxivClient arxivClient;
+    private final AiSummaryService aiSummaryService;
     private final PdfExtractor pdfExtractor;
 
     @PostMapping("/analyze")
@@ -186,6 +193,54 @@ public class PaperController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                     "error", "Failed to extract PDF text",
                     "arxivId", arxivId,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    @PostMapping("/{arxivId}/ask")
+    @Operation(summary = "Ask a question about a paper",
+            description = "Ask an AI-powered question about an analyzed paper")
+    public ResponseEntity<?> askQuestion(
+            @PathVariable String arxivId,
+            @Valid @RequestBody AskQuestionRequest request) {
+
+        log.info("💬 Question for paper {}: {}", arxivId, request.getQuestion());
+
+        // Check if paper exists
+        Optional<Paper> paperOpt = paperRepository.findByArxivId(arxivId);
+        if (paperOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", "Paper not found",
+                    "arxivId", arxivId,
+                    "message", "Please analyze this paper first before asking questions"
+            ));
+        }
+
+        try {
+            // Get the full paper text for context
+            log.info("📄 Fetching paper text for Q&A context");
+            String paperText = pdfExtractor.extractText(arxivId);
+
+            // Get AI answer
+            String answer = aiSummaryService.answerQuestion(paperText, request.getQuestion());
+
+            // Build response
+            QuestionResponse response = QuestionResponse.builder()
+                    .questionId(UUID.randomUUID().toString())
+                    .arxivId(arxivId)
+                    .question(request.getQuestion())
+                    .answer(answer)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            log.info("✅ Successfully answered question");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("❌ Failed to answer question", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "error", "Failed to answer question",
                     "message", e.getMessage()
             ));
         }

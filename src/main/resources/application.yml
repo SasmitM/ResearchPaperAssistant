@@ -52,7 +52,7 @@ springdoc:
 # Custom properties
 app:
   features:
-    use-mock-openai: false
+    use-mock-openai: true
     use-mock-arxiv: false
     enable-caching: true
 

@@ -37,4 +37,13 @@ public interface AiSummaryService {
      * @return Estimated reading time
      */
     int estimateReadingTime(String text);
+
+    /**
+     * Answer a specific question based on the paper context
+     *
+     * @param paperContext The context of the paper
+     * @param question     The question to answer
+     * @return Answer to the question
+     */
+    String answerQuestion(String paperContext, String question);
 }

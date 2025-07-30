@@ -142,6 +142,38 @@ public class GeminiAiSummaryService implements AiSummaryService {
         return ((minutes + 4) / 5) * 5;
     }
 
+    @Override
+    public String answerQuestion(String paperContext, String question) {
+        log.info("🤖 Answering question with Gemini: {}", question);
+
+        // Truncate context if too long
+        String truncatedContext = paperContext.length() > 10000 ?
+                paperContext.substring(0, 10000) + "..." : paperContext;
+
+        String prompt = """
+                You are an AI assistant helping students understand research papers.
+                Based on the paper content below, answer the student's question clearly and concisely.
+                If the answer is not in the paper, say so politely.
+                Use simple language and explain technical terms.
+                
+                Paper Content:
+                %s
+                
+                Student's Question: %s
+                
+                Answer:
+                """.formatted(truncatedContext, question);
+
+        try {
+            String response = callGeminiApi(prompt);
+            log.info("✅ Successfully generated answer");
+            return response;
+        } catch (Exception e) {
+            log.error("❌ Failed to generate answer", e);
+            return "I'm sorry, I couldn't generate an answer to your question. Please try again.";
+        }
+    }
+
     private String callGeminiApi(String prompt) {
         String url = properties.getApiUrl() + properties.getModel() +
                 ":generateContent?key=" + properties.getApiKey();

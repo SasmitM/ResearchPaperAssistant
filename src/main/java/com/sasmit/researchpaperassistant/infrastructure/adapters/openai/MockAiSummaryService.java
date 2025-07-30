@@ -112,6 +112,31 @@ public class MockAiSummaryService implements AiSummaryService {
         return ((minutes + 4) / 5) * 5;
     }
 
+    @Override
+    public String answerQuestion(String paperContext, String question) {
+        log.info("🤖 MOCK: Answering question - {}", question);
+        simulateProcessing();
+
+        String[] responses = {
+                "Based on the paper's methodology section, %s",
+                "The authors address this by %s",
+                "According to the results presented, %s",
+                "The paper suggests that %s"
+        };
+
+        String template = responses[random.nextInt(responses.length)];
+        String answer = String.format(template,
+                "the approach involves using advanced neural network architectures to improve performance. " +
+                        "The key insight is the use of attention mechanisms which allow the model to focus on relevant parts of the input."
+        );
+
+        if (properties.getMock().getResponses().isAddEmojis()) {
+            answer += "\n\n💡 Hope this helps clarify things!";
+        }
+
+        return answer;
+    }
+
     private void simulateProcessing() {
         try {
             int delay = ThreadLocalRandom.current().nextInt(
