@@ -61,13 +61,5 @@ public class Paper {
                 publishedDate.isAfter(LocalDateTime.now().minusYears(1));
     }
 
-    /**
-     * Business logic: Estimate if this is a survey/review paper
-     */
-    public boolean isProbablySurvey() {
-        String lowerTitle = title.toLowerCase();
-        return lowerTitle.contains("survey") ||
-                lowerTitle.contains("review") ||
-                lowerTitle.contains("overview");
-    }
+
 }
