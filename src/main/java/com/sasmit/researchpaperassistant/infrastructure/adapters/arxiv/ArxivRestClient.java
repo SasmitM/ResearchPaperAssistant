@@ -14,6 +14,8 @@ import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,7 +33,9 @@ public class ArxivRestClient implements ArxivClient {
     private final AppProperties properties;
     private final RestTemplate restTemplate = new RestTemplate();
 
+
     @Override
+    @CircuitBreaker(name = "arxivService", fallbackMethod = "fallbackFetchPaperMetadata")
     public Optional<Paper> fetchPaperMetadata(String arxivId) {
         log.info("📚 Fetching metadata from arXiv for ID: {}", arxivId);
 
@@ -56,6 +60,11 @@ public class ArxivRestClient implements ArxivClient {
             log.error("Error fetching from arXiv API", e);
             return Optional.empty();
         }
+    }
+
+    public Optional<Paper> fallbackFetchPaperMetadata(String arxivId, Throwable t) {
+        log.error("❌ Circuit breaker triggered. Falling back for arXiv ID: {}", arxivId);
+        return Optional.empty();
     }
 
     private Optional<Paper> parseArxivXml(String xml, String arxivId) {

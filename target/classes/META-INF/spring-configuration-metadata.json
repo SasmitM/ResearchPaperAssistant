@@ -40,32 +40,27 @@
     {
       "name": "app.arxiv.base-url",
       "type": "java.lang.String",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv",
-      "defaultValue": "https:\/\/export.arxiv.org\/api\/query"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv"
     },
     {
       "name": "app.arxiv.pdf-base-url",
       "type": "java.lang.String",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv",
-      "defaultValue": "https:\/\/arxiv.org\/pdf\/"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv"
     },
     {
       "name": "app.features.enable-caching",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
-      "defaultValue": true
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features"
     },
     {
       "name": "app.features.use-mock-arxiv",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
-      "defaultValue": false
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features"
     },
     {
       "name": "app.features.use-mock-openai",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
-      "defaultValue": true
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features"
     },
     {
       "name": "app.gemini.api-key",
@@ -75,50 +70,42 @@
     {
       "name": "app.gemini.api-url",
       "type": "java.lang.String",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties",
-      "defaultValue": "https:\/\/generativelanguage.googleapis.com\/v1beta\/models\/"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties"
     },
     {
       "name": "app.gemini.max-tokens",
       "type": "java.lang.Integer",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties",
-      "defaultValue": 2048
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties"
     },
     {
       "name": "app.gemini.model",
       "type": "java.lang.String",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties",
-      "defaultValue": "gemini-pro"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties"
     },
     {
       "name": "app.gemini.temperature",
       "type": "java.lang.Double",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties",
-      "defaultValue": 0.7
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties"
     },
     {
       "name": "app.mock.delays.max-ms",
       "type": "java.lang.Integer",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays",
-      "defaultValue": 2000
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays"
     },
     {
       "name": "app.mock.delays.min-ms",
       "type": "java.lang.Integer",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays",
-      "defaultValue": 500
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays"
     },
     {
       "name": "app.mock.responses.add-emojis",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses",
-      "defaultValue": true
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses"
     },
     {
       "name": "app.mock.responses.include-timestamp",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses",
-      "defaultValue": true
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses"
     }
   ],
   "hints": [],

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.sasmit.researchpaperassistant.core.domain.model.PaperAnalysis.DifficultyLevel;
 import com.sasmit.researchpaperassistant.core.ports.out.AiSummaryService;
 import com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @Service
 @ConditionalOnProperty(name = "app.features.use-mock-openai", havingValue = "false")
@@ -26,6 +28,7 @@ public class GeminiAiSummaryService implements AiSummaryService {
 
     @Override
     @Cacheable(value = "summaries", key = "#abstractText.hashCode()")
+    @CircuitBreaker(name = "geminiService", fallbackMethod = "geminiAPICallFallback")
     public String summarizeAbstract(String abstractText) {
         log.info("🤖 Calling Gemini API to summarize abstract");
 
@@ -54,6 +57,7 @@ public class GeminiAiSummaryService implements AiSummaryService {
 
     @Override
     @Cacheable(value = "fullSummaries", key = "#fullText.hashCode()")
+    @CircuitBreaker(name = "geminiService", fallbackMethod = "geminiAPICallFallback")
     public String summarizePaper(String fullText) {
         log.info("🤖 Calling Gemini API to summarize full paper");
 
@@ -91,6 +95,7 @@ public class GeminiAiSummaryService implements AiSummaryService {
     }
 
     @Override
+    @CircuitBreaker(name = "geminiService", fallbackMethod = "estimateDifficultyFallback")
     public DifficultyLevel estimateDifficulty(String text) {
         log.info("🤖 Estimating paper difficulty with Gemini");
 
@@ -123,11 +128,11 @@ public class GeminiAiSummaryService implements AiSummaryService {
             if (response.contains("EXPERT")) return DifficultyLevel.EXPERT;
 
             // Default based on text complexity
-            return estimateDifficultyFallback(text);
+            return estimateDifficultyFallback(text, new RuntimeException("Unexpected response: " + response));
 
         } catch (Exception e) {
             log.error("Failed to estimate difficulty", e);
-            return estimateDifficultyFallback(text);
+            return estimateDifficultyFallback(text, e);
         }
     }
 
@@ -143,6 +148,7 @@ public class GeminiAiSummaryService implements AiSummaryService {
     }
 
     @Override
+    @CircuitBreaker(name = "geminiService", fallbackMethod = "geminiAnswerQuestionFallback")
     public String answerQuestion(String paperContext, String question) {
         log.info("🤖 Answering question with Gemini: {}", question);
 
@@ -178,7 +184,7 @@ public class GeminiAiSummaryService implements AiSummaryService {
         String url = properties.getApiUrl() + properties.getModel() +
                 ":generateContent?key=" + properties.getApiKey();
 
-        // Build request body
+
         JsonObject requestBody = new JsonObject();
         JsonArray contents = new JsonArray();
         JsonObject content = new JsonObject();
@@ -232,7 +238,19 @@ public class GeminiAiSummaryService implements AiSummaryService {
         }
     }
 
-    private DifficultyLevel estimateDifficultyFallback(String text) {
+    private String geminiAPICallFallback(String prompt, Throwable t) {
+        log.error("❌ Gemini API call failed, using fallback", t);
+        return "I'm sorry, I couldn't process your request at the moment. Please try again later.";
+    }
+
+    private String geminiAnswerQuestionFallback(String paperContext, String question, Throwable t) {
+        log.error("❌ Gemini API call failed for question '{}', using fallback", question, t);
+        return "I'm sorry, I couldn't answer your question at the moment. Please try again later.";
+    }
+
+    private DifficultyLevel estimateDifficultyFallback(String text, Throwable t) {
+        log.error("❌ Fallback triggered for estimateDifficulty due to exception: {}", t.getMessage(), t);
+
         // Simple heuristic fallback
         int length = text.length();
         if (length < 10000) return DifficultyLevel.BEGINNER;
