@@ -4,6 +4,7 @@ import PaperForm from './components/PaperForm';
 import PaperAnalysis from './components/PaperAnalysis';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
+import Chatbot from './components/Chatbot';
 
 interface AnalysisResult {
   arxivId: string;
@@ -36,7 +37,7 @@ interface PdfExtractionResult {
 interface PdfStatsResult {
   success: boolean;
   arxivId: string;
-  title?: string; // Added title to PdfStatsResult
+  title?: string;
   statistics: {
     totalCharacters: number;
     totalWords: number;
@@ -58,7 +59,9 @@ function App() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [pdfExtractionResult, setPdfExtractionResult] = useState<PdfExtractionResult | null>(null);
   const [pdfStatsResult, setPdfStatsResult] = useState<PdfStatsResult | null>(null);
-  const [mode, setMode] = useState<'analysis' | 'full-text' | 'stats-only'>('analysis');
+  const [currentArxivId, setCurrentArxivId] = useState<string | null>(null);
+  const [currentPaperTitle, setCurrentPaperTitle] = useState<string | null>(null);
+  const [mode, setMode] = useState<'analysis' | 'full-text' | 'stats-only' | 'chatbot'>('analysis');
 
   const handleSubmit = async (arxivId: string) => {
     setIsLoading(true);
@@ -66,6 +69,7 @@ function App() {
     setResult(null);
     setPdfExtractionResult(null);
     setPdfStatsResult(null);
+    setCurrentArxivId(arxivId);
     
     try {
       if (mode === 'full-text') {
@@ -77,6 +81,7 @@ function App() {
         }
         const data = await response.json();
         setPdfExtractionResult(data);
+        setCurrentPaperTitle(data.title || null);
       } else if (mode === 'stats-only') {
         // Get PDF extraction statistics only
         const response = await fetch(`http://localhost:8080/api/v1/test/pdf/extract-stats/${arxivId}`);
@@ -86,6 +91,39 @@ function App() {
         }
         const data = await response.json();
         setPdfStatsResult(data);
+        setCurrentPaperTitle(data.title || null);
+      } else if (mode === 'chatbot') {
+        // For chatbot mode, we need to ensure the paper exists first
+        const existsResponse = await fetch(`http://localhost:8080/api/v1/papers/test/${arxivId}/exists`);
+        if (!existsResponse.ok) {
+          throw new Error('Failed to check if paper exists');
+        }
+        const existsData = await existsResponse.json();
+        
+        if (!existsData.paperCached) {
+          // Try to fetch paper metadata to get the title
+          const analyzeRes = await fetch('http://localhost:8080/api/v1/papers/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ arxivId })
+          });
+          if (!analyzeRes.ok) {
+            throw new Error('Paper not found. Please analyze it first.');
+          }
+          // Wait a bit for the analysis to complete
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+        
+        // Get paper details for title
+        const paperResponse = await fetch(`http://localhost:8080/api/v1/papers/${arxivId}`);
+        if (paperResponse.ok) {
+          const paperData = await paperResponse.json();
+          setCurrentPaperTitle(paperData.title || null);
+        }
+        
+        // Chatbot mode doesn't need to set any results, just the arxivId and title
+        setIsLoading(false);
+        return;
       } else {
         // Full analysis flow
         const analyzeRes = await fetch('http://localhost:8080/api/v1/papers/analyze', {
@@ -124,6 +162,7 @@ function App() {
           abstractSummary: data.abstractSummary,
           fullTextSummary: data.fullTextSummary,
         });
+        setCurrentPaperTitle(data.title || null);
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred.');
@@ -137,12 +176,15 @@ function App() {
     setPdfExtractionResult(null);
     setPdfStatsResult(null);
     setError(null);
+    setCurrentArxivId(null);
+    setCurrentPaperTitle(null);
   };
 
   const getLoadingMessage = () => {
     switch (mode) {
       case 'full-text': return 'Extracting full PDF text...';
       case 'stats-only': return 'Extracting PDF statistics...';
+      case 'chatbot': return 'Preparing chatbot...';
       default: return 'Analyzing paper...';
     }
   };
@@ -159,7 +201,7 @@ function App() {
             name="mode"
             value="analysis"
             checked={mode === 'analysis'}
-            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only')}
+            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only' | 'chatbot')}
           />
           Full Analysis (AI Summary)
         </label>
@@ -169,23 +211,33 @@ function App() {
             name="mode"
             value="full-text"
             checked={mode === 'full-text'}
-            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only')}
+            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only' | 'chatbot')}
           />
           Full PDF Text
         </label>
-        <label>
+        <label style={{ marginRight: '10px' }}>
           <input
             type="radio"
             name="mode"
             value="stats-only"
             checked={mode === 'stats-only'}
-            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only')}
+            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only' | 'chatbot')}
           />
           PDF Statistics Only
         </label>
+        <label>
+          <input
+            type="radio"
+            name="mode"
+            value="chatbot"
+            checked={mode === 'chatbot'}
+            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only' | 'chatbot')}
+          />
+          Chatbot
+        </label>
       </div>
 
-      {!result && !pdfExtractionResult && !pdfStatsResult && !isLoading && (
+      {!result && !pdfExtractionResult && !pdfStatsResult && !currentArxivId && !isLoading && (
         <PaperForm onSubmit={handleSubmit} isLoading={isLoading} />
       )}
       
@@ -262,6 +314,13 @@ function App() {
               </ul>
             </div>
           </div>
+        </>
+      )}
+
+      {mode === 'chatbot' && currentArxivId && !isLoading && (
+        <>
+          <button style={{marginBottom:16}} onClick={handleNew}>Chat with Another Paper</button>
+          <Chatbot arxivId={currentArxivId} paperTitle={currentPaperTitle || undefined} />
         </>
       )}
     </div>
