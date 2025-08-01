@@ -34,33 +34,60 @@
       "name": "app.mock.responses",
       "type": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses",
       "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock"
+    },
+    {
+      "name": "app.openai",
+      "type": "com.sasmit.researchpaperassistant.infrastructure.config.OpenAiProperties",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.OpenAiProperties"
     }
   ],
   "properties": [
     {
       "name": "app.arxiv.base-url",
       "type": "java.lang.String",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv",
+      "defaultValue": "https:\/\/export.arxiv.org\/api\/query"
     },
     {
       "name": "app.arxiv.pdf-base-url",
       "type": "java.lang.String",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv",
+      "defaultValue": "https:\/\/arxiv.org\/pdf\/"
     },
     {
       "name": "app.features.enable-caching",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
+      "defaultValue": false
+    },
+    {
+      "name": "app.features.use-gemini-ai",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
+      "defaultValue": false
+    },
+    {
+      "name": "app.features.use-mock-ai",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
+      "defaultValue": false
     },
     {
       "name": "app.features.use-mock-arxiv",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
+      "defaultValue": false
     },
     {
       "name": "app.features.use-mock-openai",
       "type": "java.lang.Boolean",
       "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features"
+    },
+    {
+      "name": "app.features.use-open-ai",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
+      "defaultValue": false
     },
     {
       "name": "app.gemini.api-key",
@@ -75,7 +102,8 @@
     {
       "name": "app.gemini.max-tokens",
       "type": "java.lang.Integer",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties",
+      "defaultValue": 0
     },
     {
       "name": "app.gemini.model",
@@ -90,22 +118,52 @@
     {
       "name": "app.mock.delays.max-ms",
       "type": "java.lang.Integer",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays",
+      "defaultValue": 2000
     },
     {
       "name": "app.mock.delays.min-ms",
       "type": "java.lang.Integer",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays",
+      "defaultValue": 500
     },
     {
       "name": "app.mock.responses.add-emojis",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses",
+      "defaultValue": true
     },
     {
       "name": "app.mock.responses.include-timestamp",
       "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses",
+      "defaultValue": true
+    },
+    {
+      "name": "app.openai.api-key",
+      "type": "java.lang.String",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.OpenAiProperties"
+    },
+    {
+      "name": "app.openai.api-url",
+      "type": "java.lang.String",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.OpenAiProperties"
+    },
+    {
+      "name": "app.openai.max-tokens",
+      "type": "java.lang.Integer",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.OpenAiProperties",
+      "defaultValue": 0
+    },
+    {
+      "name": "app.openai.model",
+      "type": "java.lang.String",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.OpenAiProperties"
+    },
+    {
+      "name": "app.openai.temperature",
+      "type": "java.lang.Double",
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.OpenAiProperties"
     }
   ],
   "hints": [],

@@ -15,9 +15,11 @@ public class AppProperties {
 
     @Data
     public static class Features {
-        private boolean useMockOpenai = true;
-        private boolean useMockArxiv = false;
-        private boolean enableCaching = true;
+        private boolean useMockAi;
+        private boolean useMockArxiv;
+        private boolean useGeminiAi;
+        private boolean useOpenAi;
+        private boolean enableCaching;
     }
 
     @Data
@@ -25,6 +27,7 @@ public class AppProperties {
         private String baseUrl = "https://export.arxiv.org/api/query";
         private String pdfBaseUrl = "https://arxiv.org/pdf/";
     }
+
 
     @Data
     public static class Mock {

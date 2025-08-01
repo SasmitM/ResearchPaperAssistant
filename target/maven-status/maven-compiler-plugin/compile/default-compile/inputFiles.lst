@@ -1,7 +1,10 @@
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/ResearchpaperassistantApplication.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/dto/request/AnalyzePaperRequest.java
+/Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/dto/request/AskQuestionRequest.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/dto/response/JobStatusResponse.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/dto/response/PaperAnalysisResponse.java
+/Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/dto/response/QuestionResponse.java
+/Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/v1/controllers/CircuitBreakerTestController.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/v1/controllers/HealthController.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/v1/controllers/PaperController.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/api/v1/controllers/PdfTestController.java
@@ -16,10 +19,12 @@
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/adapters/arxiv/ArxivRestClient.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/adapters/arxiv/MockArxivClient.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/adapters/gemini/GeminiAiSummaryService.java
-/Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/adapters/openai/MockAiSummaryService.java
+/Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/adapters/mockAi/MockAiSummaryService.java
+/Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/adapters/openai/OpenAiSummaryService.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/adapters/pdf/TikaPdfExtractor.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/adapters/persistence/InMemoryPaperRepository.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/config/AppProperties.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/config/AsyncConfig.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/config/CacheConfig.java
 /Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/config/GeminiProperties.java
+/Users/sasmitmunagala/Sasmit_Personal_Projects/researchpaperassistant/src/main/java/com/sasmit/researchpaperassistant/infrastructure/config/OpenAiProperties.java

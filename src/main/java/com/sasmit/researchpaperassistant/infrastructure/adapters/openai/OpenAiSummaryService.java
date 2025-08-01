@@ -1,12 +1,12 @@
-package com.sasmit.researchpaperassistant.infrastructure.adapters.gemini;
+package com.sasmit.researchpaperassistant.infrastructure.adapters.openai;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sasmit.researchpaperassistant.core.domain.model.PaperAnalysis.DifficultyLevel;
 import com.sasmit.researchpaperassistant.core.ports.out.AiSummaryService;
-import com.sasmit.researchpaperassistant.infrastructure.config.GeminiProperties;
-import io.github.resilience4j.retry.annotation.Retry;
+import com.sasmit.researchpaperassistant.infrastructure.config.OpenAiProperties;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,23 +14,22 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @Service
-@ConditionalOnProperty(name = "app.features.use-gemini-ai", havingValue = "true")
+@ConditionalOnProperty(name = "app.features.use-openai", havingValue = "true")
 @RequiredArgsConstructor
 @Slf4j
-public class GeminiAiSummaryService implements AiSummaryService {
+public class OpenAiSummaryService implements AiSummaryService {
 
-    private final GeminiProperties properties;
+    private final OpenAiProperties properties;
     private final RestTemplate restTemplate = new RestTemplate();
     private final Gson gson = new Gson();
 
     @Override
     @Cacheable(value = "summaries", key = "#abstractText.hashCode()")
-    @CircuitBreaker(name = "geminiService", fallbackMethod = "geminiAPICallFallback")
+    @CircuitBreaker(name = "openAiService", fallbackMethod = "summaryFallback")
     public String summarizeAbstract(String abstractText) {
-        log.info("🤖 Calling Gemini API to summarize abstract");
+        log.info("🤖 Calling OpenAI API to summarize abstract");
 
         String prompt = """
                 You are an AI assistant helping students understand research papers.
@@ -46,22 +45,22 @@ public class GeminiAiSummaryService implements AiSummaryService {
                 """.formatted(abstractText);
 
         try {
-            String response = callGeminiApi(prompt);
+            String response = callOpenAiApi(prompt);
             log.info("✅ Successfully generated abstract summary");
             return response;
         } catch (Exception e) {
             log.error("❌ Failed to generate summary", e);
-            return "Error generating summary: " + e.getMessage();
+            return summaryFallback(abstractText, e);
         }
     }
 
     @Override
     @Cacheable(value = "fullSummaries", key = "#fullText.hashCode()")
-    @CircuitBreaker(name = "geminiService", fallbackMethod = "geminiAPICallFallback")
+    @CircuitBreaker(name = "openAiService", fallbackMethod = "summaryFallback")
     public String summarizePaper(String fullText) {
-        log.info("🤖 Calling Gemini API to summarize full paper");
+        log.info("🤖 Calling OpenAI API to summarize full paper");
 
-        // Truncate if too long (Gemini has token limits)
+        // Truncate if too long (OpenAI has token limits)
         String truncatedText = fullText.length() > 15000 ?
                 fullText.substring(0, 15000) + "..." : fullText;
 
@@ -85,19 +84,19 @@ public class GeminiAiSummaryService implements AiSummaryService {
                 """.formatted(truncatedText);
 
         try {
-            String response = callGeminiApi(prompt);
+            String response = callOpenAiApi(prompt);
             log.info("✅ Successfully generated full paper summary");
             return response;
         } catch (Exception e) {
             log.error("❌ Failed to generate summary", e);
-            return "Error generating summary: " + e.getMessage();
+            return summaryFallback(fullText, e);
         }
     }
 
     @Override
-    @CircuitBreaker(name = "geminiService", fallbackMethod = "estimateDifficultyFallback")
+    @CircuitBreaker(name = "openAiService", fallbackMethod = "difficultyFallback")
     public DifficultyLevel estimateDifficulty(String text) {
-        log.info("🤖 Estimating paper difficulty with Gemini");
+        log.info("🤖 Estimating paper difficulty with OpenAI");
 
         String truncatedText = text.length() > 5000 ?
                 text.substring(0, 5000) + "..." : text;
@@ -119,40 +118,26 @@ public class GeminiAiSummaryService implements AiSummaryService {
                 """.formatted(truncatedText);
 
         try {
-            String response = callGeminiApi(prompt).trim().toUpperCase();
-
-            // Parse response
-            if (response.contains("BEGINNER")) return DifficultyLevel.BEGINNER;
-            if (response.contains("INTERMEDIATE")) return DifficultyLevel.INTERMEDIATE;
-            if (response.contains("ADVANCED")) return DifficultyLevel.ADVANCED;
-            if (response.contains("EXPERT")) return DifficultyLevel.EXPERT;
-
-            // Default based on text complexity
-            return estimateDifficultyFallback(text, new RuntimeException("Unexpected response: " + response));
-
+            String response = callOpenAiApi(prompt).trim().toUpperCase();
+            return mapDifficulty(response);
         } catch (Exception e) {
             log.error("Failed to estimate difficulty", e);
-            return estimateDifficultyFallback(text, e);
+            return difficultyFallback(text, e);
         }
     }
 
     @Override
     public int estimateReadingTime(String text) {
-        // Simple calculation: average reading speed is 200-250 words per minute
-        // Academic papers might be slower, so use 150 wpm
         int wordCount = text.split("\\s+").length;
         int minutes = Math.max(5, wordCount / 150);
-
-        // Round to nearest 5 minutes
-        return ((minutes + 4) / 5) * 5;
+        return ((minutes + 4) / 5) * 5; // Round to nearest 5 minutes
     }
 
     @Override
-    @CircuitBreaker(name = "geminiService", fallbackMethod = "geminiAnswerQuestionFallback")
+    @CircuitBreaker(name = "openAiService", fallbackMethod = "questionFallback")
     public String answerQuestion(String paperContext, String question) {
-        log.info("🤖 Answering question with Gemini: {}", question);
+        log.info("🤖 Answering question with OpenAI: {}", question);
 
-        // Truncate context if too long
         String truncatedContext = paperContext.length() > 10000 ?
                 paperContext.substring(0, 10000) + "..." : paperContext;
 
@@ -171,91 +156,106 @@ public class GeminiAiSummaryService implements AiSummaryService {
                 """.formatted(truncatedContext, question);
 
         try {
-            String response = callGeminiApi(prompt);
+            String response = callOpenAiApi(prompt);
             log.info("✅ Successfully generated answer");
             return response;
         } catch (Exception e) {
             log.error("❌ Failed to generate answer", e);
-            return "I'm sorry, I couldn't generate an answer to your question. Please try again.";
+            return questionFallback(paperContext, question, e);
         }
     }
 
-    private String callGeminiApi(String prompt) {
-        String url = properties.getApiUrl() + properties.getModel() +
-                ":generateContent?key=" + properties.getApiKey();
+    private String callOpenAiApi(String prompt) {
+        String apiUrl = properties.getApiUrl();
+        String apiKey = properties.getApiKey();
 
+        if (apiKey == null || apiKey.isBlank() || "mock-key".equals(apiKey)) {
+            throw new IllegalStateException("OpenAI API key is missing or invalid");
+        }
 
+        // Build request using Gson (safer than string formatting)
         JsonObject requestBody = new JsonObject();
-        JsonArray contents = new JsonArray();
-        JsonObject content = new JsonObject();
-        JsonArray parts = new JsonArray();
-        JsonObject part = new JsonObject();
+        requestBody.addProperty("model", properties.getModel());
+        requestBody.addProperty("max_tokens", properties.getMaxTokens());
+        requestBody.addProperty("temperature", properties.getTemperature());
 
-        part.addProperty("text", prompt);
-        parts.add(part);
-        content.add("parts", parts);
-        contents.add(content);
-        requestBody.add("contents", contents);
+        JsonArray messages = new JsonArray();
 
-        // Add generation config
-        JsonObject generationConfig = new JsonObject();
-        generationConfig.addProperty("temperature", properties.getTemperature());
-        generationConfig.addProperty("maxOutputTokens", properties.getMaxTokens());
-        requestBody.add("generationConfig", generationConfig);
+        JsonObject systemMessage = new JsonObject();
+        systemMessage.addProperty("role", "system");
+        systemMessage.addProperty("content", "You are a helpful AI assistant that helps students understand research papers.");
+        messages.add(systemMessage);
 
-        // Make request using RestTemplate
+        JsonObject userMessage = new JsonObject();
+        userMessage.addProperty("role", "user");
+        userMessage.addProperty("content", prompt);
+        messages.add(userMessage);
+
+        requestBody.add("messages", messages);
+
+        // Make request
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey); // This is cleaner than "Bearer " + apiKey
 
         HttpEntity<String> request = new HttpEntity<>(gson.toJson(requestBody), headers);
 
+        log.debug("Calling OpenAI API with model: {}", properties.getModel());
+
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    url,
+                    apiUrl,
                     HttpMethod.POST,
                     request,
                     String.class
             );
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Gemini API error: " + response.getStatusCode());
+                log.error("OpenAI API error: {} - {}", response.getStatusCode(), response.getBody());
+                throw new RuntimeException("OpenAI API error: " + response.getStatusCode());
             }
 
             // Parse response
             JsonObject jsonResponse = gson.fromJson(response.getBody(), JsonObject.class);
 
             return jsonResponse
-                    .getAsJsonArray("candidates")
+                    .getAsJsonArray("choices")
                     .get(0).getAsJsonObject()
-                    .getAsJsonObject("content")
-                    .getAsJsonArray("parts")
-                    .get(0).getAsJsonObject()
-                    .get("text").getAsString();
+                    .getAsJsonObject("message")
+                    .get("content").getAsString()
+                    .trim();
 
         } catch (Exception e) {
-            log.error("Error calling Gemini API", e);
-            throw new RuntimeException("Failed to call Gemini API", e);
+            log.error("Error calling OpenAI API", e);
+            throw new RuntimeException("Failed to call OpenAI API", e);
         }
     }
 
-    private String geminiAPICallFallback(String prompt, Throwable t) {
-        log.error("❌ Gemini API call failed, using fallback", t);
-        return "I'm sorry, I couldn't process your request at the moment. Please try again later.";
+    private DifficultyLevel mapDifficulty(String response) {
+        if (response.contains("BEGINNER")) return DifficultyLevel.BEGINNER;
+        if (response.contains("INTERMEDIATE")) return DifficultyLevel.INTERMEDIATE;
+        if (response.contains("ADVANCED")) return DifficultyLevel.ADVANCED;
+        if (response.contains("EXPERT")) return DifficultyLevel.EXPERT;
+        return DifficultyLevel.INTERMEDIATE; // Default
     }
 
-    private String geminiAnswerQuestionFallback(String paperContext, String question, Throwable t) {
-        log.error("❌ Gemini API call failed for question '{}', using fallback", question, t);
-        return "I'm sorry, I couldn't answer your question at the moment. Please try again later.";
+    // Fallback methods
+    private String summaryFallback(String text, Throwable t) {
+        log.error("OpenAI API call failed, using fallback", t);
+        return "Unable to generate summary at this time. The OpenAI service is temporarily unavailable.";
     }
 
-    private DifficultyLevel estimateDifficultyFallback(String text, Throwable t) {
-        log.error("❌ Fallback triggered for estimateDifficulty due to exception: {}", t.getMessage(), t);
-
-        // Simple heuristic fallback
+    private DifficultyLevel difficultyFallback(String text, Throwable t) {
+        log.error("OpenAI difficulty estimation failed, using fallback", t);
         int length = text.length();
         if (length < 10000) return DifficultyLevel.BEGINNER;
         if (length < 20000) return DifficultyLevel.INTERMEDIATE;
         if (length < 40000) return DifficultyLevel.ADVANCED;
         return DifficultyLevel.EXPERT;
+    }
+
+    private String questionFallback(String context, String question, Throwable t) {
+        log.error("OpenAI question answering failed, using fallback", t);
+        return "Unable to answer your question at this time. The OpenAI service is temporarily unavailable.";
     }
 }

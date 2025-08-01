@@ -1,4 +1,4 @@
-package com.sasmit.researchpaperassistant.infrastructure.adapters.openai;
+package com.sasmit.researchpaperassistant.infrastructure.adapters.mockAi;
 
 import com.sasmit.researchpaperassistant.core.domain.model.PaperAnalysis.DifficultyLevel;
 import com.sasmit.researchpaperassistant.core.ports.out.AiSummaryService;
@@ -14,7 +14,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
-@ConditionalOnProperty(name = "app.features.use-mock-openai", havingValue = "true")
+@ConditionalOnProperty(name = "app.features.use-mock-ai", havingValue = "true")
 @RequiredArgsConstructor
 @Slf4j
 public class MockAiSummaryService implements AiSummaryService {

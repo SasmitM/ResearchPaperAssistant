@@ -18,8 +18,6 @@ public class HealthController {
     @Value("${spring.application.name}")
     private String applicationName;
 
-    @Value("${app.features.use-mock-openai}")
-    private boolean useMockOpenAi;
 
     @GetMapping
     @Operation(summary = "Health check", description = "Check if the service is running")
@@ -27,10 +25,7 @@ public class HealthController {
         return Map.of(
                 "status", "UP",
                 "application", applicationName,
-                "timestamp", LocalDateTime.now(),
-                "features", Map.of(
-                        "mockOpenAI", useMockOpenAi
-                )
+                "timestamp", LocalDateTime.now()
         );
     }
 }
