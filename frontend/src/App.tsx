@@ -15,25 +15,6 @@ interface AnalysisResult {
   fullTextSummary: string;
 }
 
-interface PdfExtractionResult {
-  success: boolean;
-  arxivId: string;
-  pdfUrl: string;
-  extractionTimeMs: number;
-  textLength: number;
-  wordCount: number;
-  lineCount: number;
-  first500Chars: string;
-  last500Chars: string;
-  fullText: string;
-  sectionsFound: {
-    hasAbstract: boolean;
-    hasIntroduction: boolean;
-    hasConclusion: boolean;
-    hasReferences: boolean;
-  };
-}
-
 interface PdfStatsResult {
   success: boolean;
   arxivId: string;
@@ -45,44 +26,27 @@ interface PdfStatsResult {
     totalParagraphs: number;
     estimatedPages: number;
   };
-  textSamples: {
-    beginning: string;
-    quarter: string;
-    middle: string;
-    threeQuarters: string;
-  };
 }
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [pdfExtractionResult, setPdfExtractionResult] = useState<PdfExtractionResult | null>(null);
   const [pdfStatsResult, setPdfStatsResult] = useState<PdfStatsResult | null>(null);
   const [currentArxivId, setCurrentArxivId] = useState<string | null>(null);
   const [currentPaperTitle, setCurrentPaperTitle] = useState<string | null>(null);
-  const [mode, setMode] = useState<'analysis' | 'full-text' | 'stats-only' | 'chatbot'>('analysis');
+  const [mode, setMode] = useState<'analysis' | 'stats-only' | 'chatbot'>('analysis');
 
   const handleSubmit = async (arxivId: string) => {
     setIsLoading(true);
     setError(null);
     setResult(null);
-    setPdfExtractionResult(null);
     setPdfStatsResult(null);
     setCurrentArxivId(arxivId);
     
     try {
-      if (mode === 'full-text') {
-        // Get full PDF text extraction
-        const response = await fetch(`http://localhost:8080/api/v1/test/pdf/extract/${arxivId}`);
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.message || 'Failed to extract PDF text');
-        }
-        const data = await response.json();
-        setPdfExtractionResult(data);
-        setCurrentPaperTitle(data.title || null);
-      } else if (mode === 'stats-only') {
+      if (mode === 'stats-only') {
         // Get PDF extraction statistics only
         const response = await fetch(`http://localhost:8080/api/v1/test/pdf/extract-stats/${arxivId}`);
         if (!response.ok) {
@@ -173,7 +137,6 @@ function App() {
 
   const handleNew = () => {
     setResult(null);
-    setPdfExtractionResult(null);
     setPdfStatsResult(null);
     setError(null);
     setCurrentArxivId(null);
@@ -182,7 +145,6 @@ function App() {
 
   const getLoadingMessage = () => {
     switch (mode) {
-      case 'full-text': return 'Extracting full PDF text...';
       case 'stats-only': return 'Extracting PDF statistics...';
       case 'chatbot': return 'Preparing chatbot...';
       default: return 'Analyzing paper...';
@@ -191,7 +153,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Research Paper Assistant</h1>
+      <h1 style={{ textAlign: 'center' }}>Research Paper Assistant</h1>
       
       {/* Mode Toggle */}
       <div style={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -201,7 +163,7 @@ function App() {
             name="mode"
             value="analysis"
             checked={mode === 'analysis'}
-            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only' | 'chatbot')}
+            onChange={(e) => setMode(e.target.value as 'analysis' | 'stats-only' | 'chatbot')}
           />
           Full Analysis (AI Summary)
         </label>
@@ -209,19 +171,9 @@ function App() {
           <input
             type="radio"
             name="mode"
-            value="full-text"
-            checked={mode === 'full-text'}
-            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only' | 'chatbot')}
-          />
-          Full PDF Text
-        </label>
-        <label style={{ marginRight: '10px' }}>
-          <input
-            type="radio"
-            name="mode"
             value="stats-only"
             checked={mode === 'stats-only'}
-            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only' | 'chatbot')}
+            onChange={(e) => setMode(e.target.value as 'analysis' | 'stats-only' | 'chatbot')}
           />
           PDF Statistics Only
         </label>
@@ -231,13 +183,13 @@ function App() {
             name="mode"
             value="chatbot"
             checked={mode === 'chatbot'}
-            onChange={(e) => setMode(e.target.value as 'analysis' | 'full-text' | 'stats-only' | 'chatbot')}
+            onChange={(e) => setMode(e.target.value as 'analysis' | 'stats-only' | 'chatbot')}
           />
           Chatbot
         </label>
       </div>
 
-      {!result && !pdfExtractionResult && !pdfStatsResult && !currentArxivId && !isLoading && (
+      {!result && !pdfStatsResult && !currentArxivId && !isLoading && (
         <PaperForm onSubmit={handleSubmit} isLoading={isLoading} />
       )}
       
@@ -249,48 +201,6 @@ function App() {
         <>
           <button style={{marginBottom:16}} onClick={handleNew}>Analyze Another Paper</button>
           <PaperAnalysis analysis={result} />
-        </>
-      )}
-      
-      {pdfExtractionResult && (
-        <>
-          <button style={{marginBottom:16}} onClick={handleNew}>Extract Another Paper</button>
-          <div className="result">
-            <h2>Full PDF Text Extraction</h2>
-            <div><strong>arXiv ID:</strong> {pdfExtractionResult.arxivId}</div>
-            <div><strong>PDF URL:</strong> <a href={pdfExtractionResult.pdfUrl} target="_blank" rel="noopener noreferrer">{pdfExtractionResult.pdfUrl}</a></div>
-            <div><strong>Extraction Time:</strong> {pdfExtractionResult.extractionTimeMs}ms</div>
-            <div><strong>Text Length:</strong> {pdfExtractionResult.textLength.toLocaleString()} characters</div>
-            <div><strong>Word Count:</strong> {pdfExtractionResult.wordCount.toLocaleString()} words</div>
-            <div><strong>Line Count:</strong> {pdfExtractionResult.lineCount.toLocaleString()} lines</div>
-            
-            <div style={{ margin: '16px 0' }}>
-              <strong>Sections Found:</strong>
-              <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-                <li>Abstract: {pdfExtractionResult.sectionsFound.hasAbstract ? '✅' : '❌'}</li>
-                <li>Introduction: {pdfExtractionResult.sectionsFound.hasIntroduction ? '✅' : '❌'}</li>
-                <li>Conclusion: {pdfExtractionResult.sectionsFound.hasConclusion ? '✅' : '❌'}</li>
-                <li>References: {pdfExtractionResult.sectionsFound.hasReferences ? '✅' : '❌'}</li>
-              </ul>
-            </div>
-
-            <div style={{ margin: '16px 0' }}>
-              <strong>Complete Extracted Text:</strong><br />
-              <pre style={{
-                whiteSpace: 'pre-wrap',
-                background: '#fff',
-                padding: '12px',
-                borderRadius: '4px',
-                border: '1px solid #ddd',
-                maxHeight: '600px',
-                overflow: 'auto',
-                fontSize: '14px',
-                lineHeight: '1.4'
-              }}>
-                {pdfExtractionResult.fullText}
-              </pre>
-            </div>
-          </div>
         </>
       )}
 

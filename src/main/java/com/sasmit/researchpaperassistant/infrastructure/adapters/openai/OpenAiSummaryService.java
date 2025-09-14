@@ -174,24 +174,7 @@ public class OpenAiSummaryService implements AiSummaryService {
         }
 
         // Build request using Gson (safer than string formatting)
-        JsonObject requestBody = new JsonObject();
-        requestBody.addProperty("model", properties.getModel());
-        requestBody.addProperty("max_tokens", properties.getMaxTokens());
-        requestBody.addProperty("temperature", properties.getTemperature());
-
-        JsonArray messages = new JsonArray();
-
-        JsonObject systemMessage = new JsonObject();
-        systemMessage.addProperty("role", "system");
-        systemMessage.addProperty("content", "You are a helpful AI assistant that helps students understand research papers.");
-        messages.add(systemMessage);
-
-        JsonObject userMessage = new JsonObject();
-        userMessage.addProperty("role", "user");
-        userMessage.addProperty("content", prompt);
-        messages.add(userMessage);
-
-        requestBody.add("messages", messages);
+        JsonObject requestBody = getJsonObject(prompt);
 
         // Make request
         HttpHeaders headers = new HttpHeaders();
@@ -229,6 +212,28 @@ public class OpenAiSummaryService implements AiSummaryService {
             log.error("Error calling OpenAI API", e);
             throw new RuntimeException("Failed to call OpenAI API", e);
         }
+    }
+
+    private JsonObject getJsonObject(String prompt) {
+        JsonObject requestBody = new JsonObject();
+        requestBody.addProperty("model", properties.getModel());
+        requestBody.addProperty("max_tokens", properties.getMaxTokens());
+        requestBody.addProperty("temperature", properties.getTemperature());
+
+        JsonArray messages = new JsonArray();
+
+        JsonObject systemMessage = new JsonObject();
+        systemMessage.addProperty("role", "system");
+        systemMessage.addProperty("content", "You are a helpful AI assistant that helps students understand research papers.");
+        messages.add(systemMessage);
+
+        JsonObject userMessage = new JsonObject();
+        userMessage.addProperty("role", "user");
+        userMessage.addProperty("content", prompt);
+        messages.add(userMessage);
+
+        requestBody.add("messages", messages);
+        return requestBody;
     }
 
     private DifficultyLevel mapDifficulty(String response) {
