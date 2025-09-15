@@ -7,7 +7,8 @@ import lombok.ToString;
 import java.time.LocalDateTime;
 
 /**
- * Value object representing the analysis results of a paper
+ * Domain model representing the analysis of a research paper.
+ * Encapsulates summaries, difficulty assessment, reading time estimate, citations, and timestamps.
  */
 @Getter
 @Builder
@@ -22,7 +23,7 @@ public class PaperAnalysis {
     private final LocalDateTime analyzedAt;
 
     /**
-     * Difficulty levels for papers
+     * Enum representing difficulty levels with descriptions and emojis.
      */
     public enum DifficultyLevel {
         BEGINNER("Suitable for beginners", "🟢"),
@@ -33,22 +34,38 @@ public class PaperAnalysis {
         private final String description;
         private final String emoji;
 
+        /**
+         * Constructor for DifficultyLevel enum.
+         *
+         * @param description Description of the difficulty level.
+         * @param emoji       Emoji representing the difficulty level.
+         */
         DifficultyLevel(String description, String emoji) {
             this.description = description;
             this.emoji = emoji;
         }
 
+        /**
+         * Get the description of the difficulty level.
+         *
+         * @return Description string.
+         */
         public String getDescription() {
             return description;
         }
 
+        /**
+         * Get the emoji representing the difficulty level.
+         *
+         * @return Emoji string.
+         */
         public String getEmoji() {
             return emoji;
         }
     }
 
     /**
-     * Value object for citation
+     * Citation formats for the paper.
      */
     @Getter
     @Builder
@@ -85,8 +102,14 @@ public class PaperAnalysis {
                     .build();
         }
 
+        /**
+         * Extract last names from a comma-separated author string.
+         * Handles different cases for single, two, or multiple authors.
+         *
+         * @param authors Comma-separated author names.
+         * @return Formatted string of last names.
+         */
         private static String extractLastNames(String authors) {
-            // Simple extraction - in production, use a proper name parser
             String[] authorList = authors.split(",");
             if (authorList.length == 1) {
                 return extractLastName(authorList[0].trim());
@@ -98,11 +121,23 @@ public class PaperAnalysis {
             }
         }
 
+        /**
+         * Extract the last name of the first author from a comma-separated author string.
+         *
+         * @param authors Comma-separated author names.
+         * @return Last name of the first author.
+         */
         private static String extractFirstAuthorLastName(String authors) {
             String[] authorList = authors.split(",");
             return extractLastName(authorList[0].trim()).replaceAll("[^a-zA-Z]", "");
         }
 
+        /**
+         * Helper method to extract the last name from a full name string.
+         *
+         * @param fullName Full name of an author.
+         * @return Last name of the author.
+         */
         private static String extractLastName(String fullName) {
             String[] parts = fullName.trim().split("\\s+");
             return parts[parts.length - 1];
@@ -110,7 +145,10 @@ public class PaperAnalysis {
     }
 
     /**
-     * Check if this analysis is still fresh (less than 30 days old)
+     * Business logic to determine if the analysis is considered fresh.
+     * An analysis is fresh if it was done within the last 30 days.
+     *
+     * @return true if the analysis is fresh, false otherwise.
      */
     public boolean isFresh() {
         return analyzedAt != null &&

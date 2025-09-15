@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Core domain entity representing a research paper.
- * This is a pure domain object with no framework dependencies.
+ * Domain model representing a research paper from arXiv.
+ * Encapsulates metadata and provides business logic related to the paper.
  */
 @Getter
 @Builder
@@ -22,7 +22,8 @@ public class Paper {
     private final LocalDateTime publishedDate;
 
     /**
-     * Value object for ArXiv ID
+     * Value object representing a valid ArXiv ID.
+     * Ensures the ID conforms to arXiv's formatting rules.
      */
     public record ArxivId(String value) {
         public ArxivId {
@@ -40,7 +41,15 @@ public class Paper {
     }
 
     /**
-     * Factory method to create a Paper from metadata
+     * Factory method to create a Paper instance from metadata.
+     * Validates required fields and constructs the Paper object.
+     *
+     * @param arxivId       The arXiv ID of the paper.
+     * @param title         The title of the paper.
+     * @param authors       The authors of the paper.
+     * @param abstractText  The abstract of the paper.
+     * @param publishedDate The publication date of the paper.
+     * @return A new Paper instance.
      */
     public static Paper fromMetadata(String arxivId, String title, String authors,
                                      String abstractText, LocalDateTime publishedDate) {
@@ -54,7 +63,10 @@ public class Paper {
     }
 
     /**
-     * Business logic: Check if paper is recent (published within last year)
+     * Business logic to determine if the paper is considered recent.
+     * A paper is recent if it was published within the last year.
+     *
+     * @return true if the paper is recent, false otherwise.
      */
     public boolean isRecent() {
         return publishedDate != null &&
