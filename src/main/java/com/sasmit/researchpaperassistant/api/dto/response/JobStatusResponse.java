@@ -3,6 +3,10 @@ package com.sasmit.researchpaperassistant.api.dto.response;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Response DTO for job status inquiries.
+ * Contains details about the job's current state, progress, and results if available.
+ */
 @Data
 @Builder
 public class JobStatusResponse {

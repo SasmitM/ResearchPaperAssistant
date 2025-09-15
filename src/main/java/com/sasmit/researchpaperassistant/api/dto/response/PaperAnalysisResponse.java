@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * Response DTO for detailed analysis of a research paper.
+ * Contains metadata, summaries, difficulty assessment, reading time estimate, citation formats, and timestamps.
+ */
 @Data
 @Builder
 public class PaperAnalysisResponse {

@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Response DTO for a question and its corresponding answer.
+ * Contains the question ID, associated ArXiv ID, the question text, the answer text, and a timestamp.
+ */
 @Data
 @Builder
 public class QuestionResponse {
