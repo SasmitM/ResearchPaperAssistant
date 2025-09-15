@@ -10,11 +10,21 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Mock implementation of ArxivClient for testing and development.
+ * Generates synthetic paper metadata without making real network calls.
+ */
 @Service
 @ConditionalOnProperty(name = "app.features.use-mock-arxiv", havingValue = "true")
 @Slf4j
 public class MockArxivClient implements ArxivClient {
 
+    /**
+     * Simulates fetching paper metadata by generating mock data.
+     *
+     * @param arxivId The arXiv ID of the paper.
+     * @return An Optional containing the mock Paper metadata.
+     */
     @Override
     public Optional<Paper> fetchPaperMetadata(String arxivId) {
         log.info("🤖 MOCK: Fetching paper metadata for {}", arxivId);
@@ -39,6 +49,11 @@ public class MockArxivClient implements ArxivClient {
         return Optional.of(paper);
     }
 
+    /**
+     * Generates a random research topic for the mock paper title.
+     *
+     * @return A random topic string.
+     */
     private String generateRandomTopic() {
         String[] topics = {
                 "Pattern Recognition", "Quantum Computing", "Natural Language Processing",
@@ -48,6 +63,11 @@ public class MockArxivClient implements ArxivClient {
         return topics[ThreadLocalRandom.current().nextInt(topics.length)];
     }
 
+    /**
+     * Generates a mock abstract for the paper.
+     *
+     * @return A synthetic abstract string.
+     */
     private String generateMockAbstract() {
         return """
                 We present a novel approach to solving complex computational problems using advanced machine learning techniques. 

@@ -24,6 +24,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+/**
+ * Real implementation of ArxivClient using arXiv's REST API.
+ * Parses XML responses to extract paper metadata.
+ * Circuit breaker pattern applied to handle arXiv service issues gracefully.
+ */
 @Service
 @ConditionalOnProperty(name = "app.features.use-mock-arxiv", havingValue = "false", matchIfMissing = true)
 @RequiredArgsConstructor
@@ -34,6 +39,13 @@ public class ArxivRestClient implements ArxivClient {
     private final RestTemplate restTemplate = new RestTemplate();
 
 
+    /**
+     * Fetches paper metadata from arXiv given an arXiv ID.
+     * Uses circuit breaker to handle potential failures.
+     *
+     * @param arxivId The arXiv ID of the paper.
+     * @return An Optional containing the Paper metadata if found, else empty.
+     */
     @Override
     @CircuitBreaker(name = "arxivService", fallbackMethod = "fallbackFetchPaperMetadata")
     public Optional<Paper> fetchPaperMetadata(String arxivId) {
@@ -62,11 +74,26 @@ public class ArxivRestClient implements ArxivClient {
         }
     }
 
+    /**
+     * Fallback method for circuit breaker.
+     * Returns empty Optional and logs the error.
+     *
+     * @param arxivId The arXiv ID of the paper.
+     * @param t       The throwable that caused the fallback.
+     * @return An empty Optional.
+     */
     public Optional<Paper> fallbackFetchPaperMetadata(String arxivId, Throwable t) {
         log.error("❌ Circuit breaker triggered. Falling back for arXiv ID: {}", arxivId);
         return Optional.empty();
     }
 
+    /**
+     * Parses the XML response from arXiv to extract paper metadata.
+     *
+     * @param xml     The XML response as a string.
+     * @param arxivId The arXiv ID of the paper.
+     * @return An Optional containing the Paper metadata if parsing is successful, else empty.
+     */
     private Optional<Paper> parseArxivXml(String xml, String arxivId) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -86,7 +113,6 @@ public class ArxivRestClient implements ArxivClient {
             String authors = extractAuthors(entry);
             LocalDateTime publishedDate = parseDate(getTextContent(entry, "published"));
 
-            //Factory methods can provide input validation too, so this is used over constructors
             Paper paper = Paper.fromMetadata(arxivId, title, authors, abstractText, publishedDate);
 
             log.info("✅ Successfully parsed paper: {}", title);
@@ -98,11 +124,24 @@ public class ArxivRestClient implements ArxivClient {
         }
     }
 
+    /**
+     * Helper method to get text content of a tag.
+     *
+     * @param parent  The parent XML element.
+     * @param tagName The tag name to extract text from.
+     * @return The text content of the tag, or empty string if not found.
+     */
     private String getTextContent(Element parent, String tagName) {
         NodeList nodes = parent.getElementsByTagName(tagName);
         return nodes.getLength() > 0 ? nodes.item(0).getTextContent() : "";
     }
 
+    /**
+     * Extracts authors from the XML entry.
+     *
+     * @param entry The XML entry element.
+     * @return A comma-separated string of authors.
+     */
     private String extractAuthors(Element entry) {
         NodeList authors = entry.getElementsByTagName("author");
         StringBuilder sb = new StringBuilder();
@@ -117,6 +156,13 @@ public class ArxivRestClient implements ArxivClient {
         return sb.toString();
     }
 
+    /**
+     * Parses date string from arXiv format to LocalDateTime.
+     * Falls back to current-time if parsing fails.
+     *
+     * @param dateStr The date string from arXiv.
+     * @return The parsed LocalDateTime, or current time if parsing fails.
+     */
     private LocalDateTime parseDate(String dateStr) {
         try {
             // Handle arXiv date format: 2023-01-15T10:30:00Z
