@@ -56,10 +56,20 @@ public interface AnalyzePaperUseCase {
             this.progressPercentage = progressPercentage;
         }
 
+        /**
+         * Get the description of the job status
+         *
+         * @return Description string
+         */
         public String getDescription() {
             return description;
         }
 
+        /**
+         * Get the progress percentage of the job status
+         *
+         * @return Progress percentage
+         */
         public int getProgressPercentage() {
             return progressPercentage;
         }
