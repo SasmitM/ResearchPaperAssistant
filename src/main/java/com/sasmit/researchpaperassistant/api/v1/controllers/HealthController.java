@@ -10,15 +10,21 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+/**
+ * Simple health check controller to verify if the service is running.
+ */
 @RestController
 @RequestMapping("/api/v1/health")
 @Tag(name = "Health", description = "Health check endpoints")
 public class HealthController {
-
-    @Value("${spring.application.name}")
     private String applicationName;
 
-
+    /**
+     * Health check endpoint.
+     *
+     * @return A map containing the health status and application name.
+     */
+    @Value("${spring.application.name}")
     @GetMapping
     @Operation(summary = "Health check", description = "Check if the service is running")
     public Map<String, Object> health() {

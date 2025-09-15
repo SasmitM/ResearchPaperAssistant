@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controller to expose circuit breaker details for monitoring and debugging.
+ */
 @RestController
 @RequestMapping("/api/v1/circuitbreaker")
 @RequiredArgsConstructor
@@ -18,19 +21,24 @@ public class CircuitBreakerTestController {
 
     private final CircuitBreakerRegistry circuitBreakerRegistry;
 
+    /**
+     * Get details of all circuit breakers.
+     *
+     * @return A map containing the state and metrics of each circuit breaker.
+     */
     @GetMapping
     public Map<String, Object> getCircuitBreakerDetails() {
         Map<String, Object> response = new HashMap<>();
 
-        // Fetch all CircuitBreakers from the registry
+
         circuitBreakerRegistry.getAllCircuitBreakers().forEach(circuitBreaker -> {
             Map<String, Object> circuitBreakerDetails = new HashMap<>();
 
-            // Fetch name and state
+
             CircuitBreaker.State state = circuitBreaker.getState();
             circuitBreakerDetails.put("state", state.name());
 
-            // Fetch Metrics
+
             Metrics metrics = circuitBreaker.getMetrics();
             circuitBreakerDetails.put("failureRate", metrics.getFailureRate());
             circuitBreakerDetails.put("slowCallRate", metrics.getSlowCallRate());
@@ -39,7 +47,7 @@ public class CircuitBreakerTestController {
             circuitBreakerDetails.put("numberOfSlowCalls", metrics.getNumberOfSlowCalls());
             circuitBreakerDetails.put("numberOfSuccessfulCalls", metrics.getNumberOfSuccessfulCalls());
 
-            // Add to response
+
             response.put(circuitBreaker.getName(), circuitBreakerDetails);
         });
 

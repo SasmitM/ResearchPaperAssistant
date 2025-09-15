@@ -28,6 +28,11 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Controller to handle research paper analysis requests.
+ * Provides endpoints to submit papers for analysis, check job status,
+ * retrieve analysis results, and ask questions about analyzed papers.
+ */
 @RestController
 @RequestMapping("/api/v1/papers")
 @RequiredArgsConstructor
@@ -42,6 +47,12 @@ public class PaperController {
     private final AiSummaryService aiSummaryService;
     private final PdfExtractor pdfExtractor;
 
+    /**
+     * Submit a paper for analysis.
+     *
+     * @param request The request containing the arXiv ID of the paper to analyze.
+     * @return A response with the job ID and status URL.
+     */
     @PostMapping("/analyze")
     @Operation(summary = "Submit a paper for analysis",
             description = "Submit an arXiv paper for AI-powered analysis")
@@ -59,6 +70,12 @@ public class PaperController {
         ));
     }
 
+    /**
+     * Check the status of an analysis job.
+     *
+     * @param jobId The ID of the job to check.
+     * @return The current status of the job, and results if completed.
+     */
     @GetMapping("/jobs/{jobId}")
     @Operation(summary = "Check job status",
             description = "Get the status of an analysis job")
@@ -72,16 +89,20 @@ public class PaperController {
                 .description(status.getDescription())
                 .progressPercentage(status.getProgressPercentage());
 
-        // If completed, include the result
+
         if (status == AnalyzePaperUseCase.JobStatus.COMPLETED) {
-            // Note: In a real implementation, we'd store the arxivId with the job
-            // For now, we'll leave the result null
             log.info("✅ Job {} completed", jobId);
         }
 
         return ResponseEntity.ok(response.build());
     }
 
+    /**
+     * Retrieve the analysis results for a paper.
+     *
+     * @param arxivId The arXiv ID of the paper.
+     * @return The analysis results including summaries, difficulty, citations, etc.
+     */
     @GetMapping("/{arxivId}")
     @Operation(summary = "Get paper analysis",
             description = "Retrieve the analysis results for a paper")
@@ -99,7 +120,7 @@ public class PaperController {
             ));
         }
 
-        // Get the paper details
+
         Optional<Paper> paperOpt = paperRepository.findByArxivId(arxivId);
         if (paperOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
@@ -138,6 +159,12 @@ public class PaperController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Test endpoint to check if a paper exists in the cache.
+     *
+     * @param arxivId The arXiv ID of the paper to check.
+     * @return Whether the paper and its analysis exist in the cache.
+     */
     @GetMapping("/test/{arxivId}/exists")
     @Operation(summary = "Test endpoint",
             description = "Check if a paper exists in our cache")
@@ -152,9 +179,14 @@ public class PaperController {
         ));
     }
 
+    /**
+     * Extract raw text from the PDF of a paper.
+     *
+     * @param arxivId The arXiv ID of the paper.
+     * @return The extracted raw text and metadata.
+     */
     @GetMapping("/{arxivId}/raw-text")
-    @Operation(summary = "Get raw PDF text",
-            description = "Extract and return the raw text content from the PDF without AI analysis")
+    @Operation(summary = "Get raw PDF text")
     public ResponseEntity<Map<String, Object>> getRawPdfText(@PathVariable String arxivId) {
         log.info("📄 Extracting raw PDF text for arXiv ID: {}", arxivId);
 
@@ -198,6 +230,13 @@ public class PaperController {
         }
     }
 
+    /**
+     * Ask a question about an analyzed paper.
+     *
+     * @param arxivId The arXiv ID of the paper.
+     * @param request The request containing the question to ask.
+     * @return The AI-generated answer to the question.
+     */
     @PostMapping("/{arxivId}/ask")
     @Operation(summary = "Ask a question about a paper",
             description = "Ask an AI-powered question about an analyzed paper")

@@ -27,7 +27,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "*") // Configure properly for production
-public class PdfStatisticsController {
+public class PdfTestController {
 
     private final PdfExtractor pdfExtractor;
     private final PaperRepository paperRepository;
