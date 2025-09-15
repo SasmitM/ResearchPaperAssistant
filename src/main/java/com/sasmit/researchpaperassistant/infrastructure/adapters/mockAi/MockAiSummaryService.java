@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Mock implementation of AiSummaryService for testing and development.
+ * Generates synthetic summaries, difficulty levels, reading times, and answers without real AI processing.
+ */
 @Service
 @ConditionalOnProperty(name = "app.features.use-mock-ai", havingValue = "true")
 @RequiredArgsConstructor
@@ -29,6 +33,12 @@ public class MockAiSummaryService implements AiSummaryService {
             "This paper introduces cutting-edge techniques in %s, perfect for students beginning their research journey."
     );
 
+    /**
+     * Generates a student-friendly summary of the given abstract text.
+     *
+     * @param abstractText The abstract of the research paper.
+     * @return A synthetic summary tailored for undergraduate students.
+     */
     @Override
     public String summarizeAbstract(String abstractText) {
         log.info("🤖 MOCK: Generating abstract summary for {} characters", abstractText.length());
@@ -54,6 +64,12 @@ public class MockAiSummaryService implements AiSummaryService {
         return summary.toString();
     }
 
+    /**
+     * Generates a comprehensive summary of the full research paper text.
+     *
+     * @param fullText The full text of the research paper.
+     * @return A detailed summary suitable for undergraduate students.
+     */
     @Override
     public String summarizePaper(String fullText) {
         log.info("🤖 MOCK: Generating full paper summary for {} characters", fullText.length());
@@ -81,6 +97,12 @@ public class MockAiSummaryService implements AiSummaryService {
                 """;
     }
 
+    /**
+     * Estimates the difficulty level of the research paper based on its text.
+     *
+     * @param text The full text of the research paper.
+     * @return An estimated difficulty level (BEGINNER, INTERMEDIATE, ADVANCED, EXPERT).
+     */
     @Override
     public DifficultyLevel estimateDifficulty(String text) {
         log.info("🤖 MOCK: Estimating difficulty level");
@@ -100,6 +122,12 @@ public class MockAiSummaryService implements AiSummaryService {
         }
     }
 
+    /**
+     * Estimates the reading time for the research paper text.
+     *
+     * @param text The full text of the research paper.
+     * @return Estimated reading time in minutes, rounded to the nearest 5 minutes.
+     */
     @Override
     public int estimateReadingTime(String text) {
         log.info("🤖 MOCK: Estimating reading time");
@@ -112,6 +140,13 @@ public class MockAiSummaryService implements AiSummaryService {
         return ((minutes + 4) / 5) * 5;
     }
 
+    /**
+     * Answers a specific question based on the provided paper context.
+     *
+     * @param paperContext The context of the research paper.
+     * @param question     The question to be answered.
+     * @return A synthetic answer to the question.
+     */
     @Override
     public String answerQuestion(String paperContext, String question) {
         log.info("🤖 MOCK: Answering question - {}", question);
@@ -137,6 +172,9 @@ public class MockAiSummaryService implements AiSummaryService {
         return answer;
     }
 
+    /**
+     * Simulates processing delay to mimic real AI service latency.
+     */
     private void simulateProcessing() {
         try {
             int delay = ThreadLocalRandom.current().nextInt(
@@ -149,6 +187,12 @@ public class MockAiSummaryService implements AiSummaryService {
         }
     }
 
+    /**
+     * Extracts a research topic from the given text for summary generation.
+     *
+     * @param text The text to analyze.
+     * @return A string representing the extracted topic.
+     */
     private String extractTopic(String text) {
         String lowerText = text.toLowerCase();
         if (lowerText.contains("neural")) return "neural networks";
