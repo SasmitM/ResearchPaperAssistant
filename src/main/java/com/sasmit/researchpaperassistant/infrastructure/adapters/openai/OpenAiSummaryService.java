@@ -15,6 +15,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * Implementation of AiSummaryService using OpenAI's API.
+ * Provides functionalities to summarize abstracts and full papers,
+ * estimate difficulty levels, reading times, and answer questions.
+ * Circuit breaker pattern applied to handle OpenAI service issues gracefully.
+ */
 @Service
 @ConditionalOnProperty(name = "app.features.use-openai", havingValue = "true")
 @RequiredArgsConstructor
@@ -25,6 +31,12 @@ public class OpenAiSummaryService implements AiSummaryService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final Gson gson = new Gson();
 
+    /**
+     * Generates a student-friendly summary of the given abstract text using OpenAI.
+     *
+     * @param abstractText The original abstract
+     * @return String, Simplified summary
+     */
     @Override
     @Cacheable(value = "summaries", key = "#abstractText.hashCode()")
     @CircuitBreaker(name = "openAiService", fallbackMethod = "summaryFallback")
@@ -54,13 +66,19 @@ public class OpenAiSummaryService implements AiSummaryService {
         }
     }
 
+    /**
+     * Generates a comprehensive summary of the full research paper text using OpenAI.
+     *
+     * @param fullText The full text of the research paper
+     * @return String, Detailed summary
+     */
     @Override
     @Cacheable(value = "fullSummaries", key = "#fullText.hashCode()")
     @CircuitBreaker(name = "openAiService", fallbackMethod = "summaryFallback")
     public String summarizePaper(String fullText) {
         log.info("🤖 Calling OpenAI API to summarize full paper");
 
-        // Truncate if too long (OpenAI has token limits)
+
         String truncatedText = fullText.length() > 15000 ?
                 fullText.substring(0, 15000) + "..." : fullText;
 
@@ -93,6 +111,12 @@ public class OpenAiSummaryService implements AiSummaryService {
         }
     }
 
+    /**
+     * Estimates the difficulty level of a research paper using OpenAI.
+     *
+     * @param text The paper text
+     * @return DifficultyLevel, Estimated difficulty level
+     */
     @Override
     @CircuitBreaker(name = "openAiService", fallbackMethod = "difficultyFallback")
     public DifficultyLevel estimateDifficulty(String text) {
@@ -126,6 +150,13 @@ public class OpenAiSummaryService implements AiSummaryService {
         }
     }
 
+    /**
+     * Estimates the reading time for a research paper based on word count.
+     * Assumes average reading speed of 150 words per minute.
+     *
+     * @param text The full text of the research paper
+     * @return int, Estimated reading time in minutes (rounded to nearest 5)
+     */
     @Override
     public int estimateReadingTime(String text) {
         int wordCount = text.split("\\s+").length;
@@ -133,6 +164,13 @@ public class OpenAiSummaryService implements AiSummaryService {
         return ((minutes + 4) / 5) * 5; // Round to nearest 5 minutes
     }
 
+    /**
+     * Answers a specific question based on the provided paper context using OpenAI.
+     *
+     * @param paperContext The context of the paper
+     * @param question     The question to answer
+     * @return String, Answer to the question
+     */
     @Override
     @CircuitBreaker(name = "openAiService", fallbackMethod = "questionFallback")
     public String answerQuestion(String paperContext, String question) {
@@ -165,6 +203,12 @@ public class OpenAiSummaryService implements AiSummaryService {
         }
     }
 
+    /**
+     * Helper method to call OpenAI API with the given prompt.
+     *
+     * @param prompt The prompt to send to OpenAI
+     * @return String, The response from OpenAI
+     */
     private String callOpenAiApi(String prompt) {
         String apiUrl = properties.getApiUrl();
         String apiKey = properties.getApiKey();
@@ -214,6 +258,12 @@ public class OpenAiSummaryService implements AiSummaryService {
         }
     }
 
+    /**
+     * Constructs the JSON request body for OpenAI API.
+     *
+     * @param prompt The prompt to include in the request
+     * @return JsonObject, The request body
+     */
     private JsonObject getJsonObject(String prompt) {
         JsonObject requestBody = new JsonObject();
         requestBody.addProperty("model", properties.getModel());
@@ -236,6 +286,12 @@ public class OpenAiSummaryService implements AiSummaryService {
         return requestBody;
     }
 
+    /**
+     * Maps OpenAI response string to DifficultyLevel enum.
+     *
+     * @param response The response string from OpenAI
+     * @return DifficultyLevel, Mapped difficulty level
+     */
     private DifficultyLevel mapDifficulty(String response) {
         if (response.contains("BEGINNER")) return DifficultyLevel.BEGINNER;
         if (response.contains("INTERMEDIATE")) return DifficultyLevel.INTERMEDIATE;
@@ -244,12 +300,27 @@ public class OpenAiSummaryService implements AiSummaryService {
         return DifficultyLevel.INTERMEDIATE; // Default
     }
 
-    // Fallback methods
+
+    /**
+     * Fallback method for summary generation when OpenAI API fails.
+     *
+     * @param text The original text
+     * @param t    The throwable that caused the fallback
+     * @return String, Fallback message
+     */
     private String summaryFallback(String text, Throwable t) {
         log.error("OpenAI API call failed, using fallback", t);
         return "Unable to generate summary at this time. The OpenAI service is temporarily unavailable.";
     }
 
+    /**
+     * Fallback method for difficulty estimation when OpenAI API fails.
+     * Uses simple heuristics based on text length.
+     *
+     * @param text The original text
+     * @param t    The throwable that caused the fallback
+     * @return DifficultyLevel, Estimated difficulty level
+     */
     private DifficultyLevel difficultyFallback(String text, Throwable t) {
         log.error("OpenAI difficulty estimation failed, using fallback", t);
         int length = text.length();
@@ -259,6 +330,14 @@ public class OpenAiSummaryService implements AiSummaryService {
         return DifficultyLevel.EXPERT;
     }
 
+    /**
+     * Fallback method for question answering when OpenAI API fails.
+     *
+     * @param context  The paper context
+     * @param question The original question
+     * @param t        The throwable that caused the fallback
+     * @return String, Fallback message
+     */
     private String questionFallback(String context, String question, Throwable t) {
         log.error("OpenAI question answering failed, using fallback", t);
         return "Unable to answer your question at this time. The OpenAI service is temporarily unavailable.";

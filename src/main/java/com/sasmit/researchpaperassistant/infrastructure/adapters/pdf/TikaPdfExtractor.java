@@ -16,6 +16,11 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * PDF text extractor using Apache Tika.
+ * Downloads the PDF from arXiv and extracts text content.
+ * Caches results to improve performance on repeated requests.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,6 +29,13 @@ public class TikaPdfExtractor implements PdfExtractor {
     private final AppProperties properties;
     private static final int MAX_CONTENT_SIZE = 10 * 1024 * 1024; // 10MB limit
 
+    /**
+     * Extracts text content from a PDF given its arXiv ID.
+     * Caches the result to avoid redundant processing.
+     *
+     * @param arxivId The arXiv ID of the paper.
+     * @return Extracted text content or an error message if extraction fails.
+     */
     @Override
     @Cacheable(value = "pdfText", key = "#arxivId")
     public String extractText(String arxivId) {
@@ -54,6 +66,15 @@ public class TikaPdfExtractor implements PdfExtractor {
         }
     }
 
+    /**
+     * Establishes an HTTP connection to download the PDF from arXiv.
+     * Handles redirects and sets appropriate headers.
+     *
+     * @param arxivId    The arXiv ID of the paper.
+     * @param properties Application properties containing configuration.
+     * @return An HttpURLConnection to the PDF resource.
+     * @throws IOException If an I/O error occurs.
+     */
     private static HttpURLConnection getHttpURLConnection(String arxivId, AppProperties properties) throws IOException {
         String pdfUrl = properties.getArxiv().getPdfBaseUrl() + arxivId + ".pdf";
 

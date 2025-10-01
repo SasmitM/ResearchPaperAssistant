@@ -21,6 +21,12 @@ public class InMemoryPaperRepository implements PaperRepository {
     private final Map<String, Paper> papers = new ConcurrentHashMap<>();
     private final Map<String, PaperAnalysis> analyses = new ConcurrentHashMap<>();
 
+    /**
+     * Save a paper to in-memory storage
+     *
+     * @param paper The paper to save
+     * @return The saved paper
+     */
     @Override
     public Paper savePaper(Paper paper) {
         log.debug("💾 Saving paper: {}", paper.getArxivId()); //using log.debug for detailed logging, as it deals with internal interactions with in-memory storage
@@ -28,12 +34,24 @@ public class InMemoryPaperRepository implements PaperRepository {
         return paper;
     }
 
+    /**
+     * Find a paper by arXiv ID
+     *
+     * @param arxivId The arXiv ID
+     * @return The paper if found
+     */
     @Override
     public Optional<Paper> findByArxivId(String arxivId) {
         log.debug("🔍 Finding paper by arXiv ID: {}", arxivId);
         return Optional.ofNullable(papers.get(arxivId));
     }
 
+    /**
+     * Save analysis results
+     *
+     * @param analysis The analysis to save
+     * @return The saved analysis
+     */
     @Override
     public PaperAnalysis saveAnalysis(PaperAnalysis analysis) {
         log.debug("💾 Saving analysis for: {}", analysis.getArxivId());
@@ -41,6 +59,12 @@ public class InMemoryPaperRepository implements PaperRepository {
         return analysis;
     }
 
+    /**
+     * Find analysis by arXiv ID
+     *
+     * @param arxivId The arXiv ID
+     * @return The analysis if found and fresh
+     */
     @Override
     public Optional<PaperAnalysis> findAnalysisByArxivId(String arxivId) {
         log.debug("🔍 Finding analysis by arXiv ID: {}", arxivId);
@@ -61,7 +85,7 @@ public class InMemoryPaperRepository implements PaperRepository {
     }
 
     /**
-     * Utility method to clear all data (useful for testing)
+     * Clear all stored papers and analyses (for testing purposes)
      */
     public void clearAll() {
         papers.clear();
@@ -70,7 +94,9 @@ public class InMemoryPaperRepository implements PaperRepository {
     }
 
     /**
-     * Get current repository statistics
+     * Get basic stats about stored papers and analyses
+     *
+     * @return A map with counts of papers and analyses
      */
     public Map<String, Integer> getStats() {
         return Map.of(

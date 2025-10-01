@@ -9,17 +9,25 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Configuration for caching using Caffeine
+ */
 @Configuration
 @EnableCaching
 public class CacheConfig {
 
+    /**
+     * Configure the CacheManager with Caffeine
+     *
+     * @return The configured CacheManager
+     */
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(
-                "summaries",           // For abstract summaries
-                "fullSummaries",       // For full paper summaries (was missing!)
-                "pdfText",            // For PDF text
-                "paperMetadata"       // For paper metadata
+                "summaries",
+                "fullSummaries",
+                "pdfText",
+                "paperMetadata"
         );
 
         cacheManager.setCaffeine(Caffeine.newBuilder()
