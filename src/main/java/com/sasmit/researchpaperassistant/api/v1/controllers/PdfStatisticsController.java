@@ -23,7 +23,7 @@ import java.util.Optional;
  * - GET /api/v1/test/pdf/extract/{arxivId}: Extracts full text from the PDF of the given arXiv ID.
  */
 @RestController
-@RequestMapping("/api/v1/test/pdf")
+@RequestMapping("/api/v1/test/pdf-stats")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "*") // Configure properly for production

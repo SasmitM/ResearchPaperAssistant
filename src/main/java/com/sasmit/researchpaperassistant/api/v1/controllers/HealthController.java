@@ -17,6 +17,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/health")
 @Tag(name = "Health", description = "Health check endpoints")
 public class HealthController {
+    @Value("${spring.application.name}")
     private String applicationName;
 
     /**
@@ -24,7 +25,7 @@ public class HealthController {
      *
      * @return A map containing the health status and application name.
      */
-    @Value("${spring.application.name}")
+
     @GetMapping
     @Operation(summary = "Health check", description = "Check if the service is running")
     public Map<String, Object> health() {
