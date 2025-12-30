@@ -8,12 +8,14 @@
     {
       "name": "app.arxiv",
       "type": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Arxiv",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties",
+      "sourceMethod": "public com.sasmit.researchpaperassistant.infrastructure.config.AppProperties.Arxiv getArxiv() "
     },
     {
       "name": "app.features",
       "type": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties",
+      "sourceMethod": "public com.sasmit.researchpaperassistant.infrastructure.config.AppProperties.Features getFeatures() "
     },
     {
       "name": "app.gemini",
@@ -23,17 +25,20 @@
     {
       "name": "app.mock",
       "type": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties",
+      "sourceMethod": "public com.sasmit.researchpaperassistant.infrastructure.config.AppProperties.Mock getMock() "
     },
     {
       "name": "app.mock.delays",
       "type": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Delays",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock",
+      "sourceMethod": "public com.sasmit.researchpaperassistant.infrastructure.config.AppProperties.Mock.Delays getDelays() "
     },
     {
       "name": "app.mock.responses",
       "type": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock$Responses",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock"
+      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Mock",
+      "sourceMethod": "public com.sasmit.researchpaperassistant.infrastructure.config.AppProperties.Mock.Responses getResponses() "
     },
     {
       "name": "app.openai",
@@ -69,11 +74,6 @@
     },
     {
       "name": "app.features.use-mock-arxiv",
-      "type": "java.lang.Boolean",
-      "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features"
-    },
-    {
-      "name": "app.features.use-mock-openai",
       "type": "java.lang.Boolean",
       "sourceType": "com.sasmit.researchpaperassistant.infrastructure.config.AppProperties$Features"
     },
