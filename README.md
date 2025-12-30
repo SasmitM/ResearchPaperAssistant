@@ -766,10 +766,6 @@ Access the in-memory H2 database console at:
 
 This is currently a personal project, but contributions and suggestions are welcome!
 
-## License
-
-[Add your license information here]
-
 ## Acknowledgments
 
 - ArXiv for providing access to research papers
