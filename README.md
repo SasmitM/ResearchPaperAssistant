@@ -1,6 +1,7 @@
 # Research Paper Assistant
 
-An AI-powered Spring Boot application that helps students understand academic research papers by providing intelligent analysis, summaries, and interactive Q&A for arXiv papers.
+An AI-powered Spring Boot application that helps students understand academic research papers by providing intelligent
+analysis, summaries, and interactive Q&A for arXiv papers.
 
 ## Table of Contents
 
@@ -19,7 +20,8 @@ An AI-powered Spring Boot application that helps students understand academic re
 
 ## Overview
 
-Research Paper Assistant is a full-stack application that makes academic research papers more accessible to students through AI-powered analysis. The system:
+Research Paper Assistant is a full-stack application that makes academic research papers more accessible to students
+through AI-powered analysis. The system:
 
 - Fetches paper metadata from arXiv
 - Extracts text content from PDF documents using Apache Tika
@@ -28,51 +30,53 @@ Research Paper Assistant is a full-stack application that makes academic researc
 - Estimates difficulty levels and reading time
 - Generates citations in multiple formats
 
-The application uses **Hexagonal Architecture** (Ports & Adapters) to ensure clean separation between business logic and infrastructure, making it maintainable and extensible.
+The application uses **Hexagonal Architecture** (Ports & Adapters) to ensure clean separation between business logic and
+infrastructure, making it maintainable and extensible.
 
 ## Features
 
 ### Core Capabilities
 
 - **Async Paper Analysis Pipeline**
-  - Submit arXiv paper ID for analysis
-  - Background processing with job tracking
-  - Real-time status updates
-  - 30-day caching to minimize API calls
+    - Submit arXiv paper ID for analysis
+    - Background processing with job tracking
+    - Real-time status updates
+    - 30-day caching to minimize API calls
 
 - **AI-Powered Summaries**
-  - Student-friendly abstract summaries
-  - Comprehensive full-paper summaries
-  - Difficulty level estimation (Beginner/Intermediate/Advanced/Expert)
-  - Reading time estimates based on content length
+    - Student-friendly abstract summaries
+    - Comprehensive full-paper summaries
+    - Difficulty level estimation (Beginner/Intermediate/Advanced/Expert)
+    - Reading time estimates based on content length
 
 - **Interactive Q&A Chatbot**
-  - Ask questions about analyzed papers
-  - Context-aware responses using paper content
-  - Debouncing to prevent spam
-  - Real-time chat interface
+    - Ask questions about analyzed papers
+    - Context-aware responses using paper content
+    - Debouncing to prevent spam
+    - Real-time chat interface
 
 - **PDF Statistics**
-  - Character, word, line, and paragraph counts
-  - Estimated page count
-  - Extraction metadata
-  - Compliant with arXiv terms of service (no raw text display)
+    - Character, word, line, and paragraph counts
+    - Estimated page count
+    - Extraction metadata
+    - Compliant with arXiv terms of service (no raw text display)
 
 - **Citation Generation**
-  - APA format
-  - MLA format
-  - Chicago format
-  - BibTeX format
+    - APA format
+    - MLA format
+    - Chicago format
+    - BibTeX format
 
 - **Resilience & Performance**
-  - Circuit breakers for external API calls
-  - Retry mechanisms with exponential backoff
-  - Caffeine caching (30-day expiration)
-  - Async processing for long-running tasks
+    - Circuit breakers for external API calls
+    - Retry mechanisms with exponential backoff
+    - Caffeine caching (30-day expiration)
+    - Async processing for long-running tasks
 
 ## Architecture
 
-The application follows **Hexagonal Architecture** (also known as Ports & Adapters), which separates the core business logic from external concerns:
+The application follows **Hexagonal Architecture** (also known as Ports & Adapters), which separates the core business
+logic from external concerns:
 
 ```mermaid
 graph TB
@@ -149,9 +153,9 @@ graph TB
 - **Build Tool**: Maven
 - **Database**: H2 (dev), PostgreSQL ready
 - **PDF Processing**: Apache Tika 2.9.2
-- **AI Integration**: 
-  - Google Gemini API
-  - OpenAI GPT-3.5/GPT-4
+- **AI Integration**:
+    - Google Gemini API
+    - OpenAI GPT-3.5/GPT-4
 - **Caching**: Caffeine
 - **Resilience**: Resilience4j (Circuit Breaker, Retry)
 - **API Documentation**: SpringDoc OpenAPI (Swagger)
@@ -174,18 +178,18 @@ Before running the application, ensure you have:
 - **Maven 3.6+**
 - **Node.js 16+** and npm (for frontend)
 - **API Keys**:
-  - Google Gemini API key (if using Gemini)
-  - OpenAI API key (if using OpenAI)
+    - Google Gemini API key (if using Gemini)
+    - OpenAI API key (if using OpenAI)
 
 ### Getting API Keys
 
 1. **Gemini API Key**:
-   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - Create a new API key
+    - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+    - Create a new API key
 
 2. **OpenAI API Key**:
-   - Visit [OpenAI Platform](https://platform.openai.com/api-keys)
-   - Create a new API key
+    - Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+    - Create a new API key
 
 ## Quick Start
 
@@ -210,9 +214,9 @@ Before running the application, ensure you have:
    ```
 
 5. **Verify the backend is running**:
-   - Health check: http://localhost:8080/api/v1/health
-   - Swagger UI: http://localhost:8080/swagger-ui.html
-   - API Docs: http://localhost:8080/api-docs
+    - Health check: http://localhost:8080/api/v1/health
+    - Swagger UI: http://localhost:8080/swagger-ui.html
+    - API Docs: http://localhost:8080/api-docs
 
 ### Frontend Setup
 
@@ -232,8 +236,8 @@ Before running the application, ensure you have:
    ```
 
 4. **Access the application**:
-   - Frontend: http://localhost:3000
-   - Backend: http://localhost:8080
+    - Frontend: http://localhost:3000
+    - Backend: http://localhost:8080
 
 ### Verify Installation
 
@@ -244,6 +248,7 @@ curl http://localhost:8080/api/v1/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "UP",
@@ -337,6 +342,7 @@ All endpoints are prefixed with `/api/v1`
 #### Paper Analysis
 
 ##### Submit Paper for Analysis
+
 ```http
 POST /api/v1/papers/analyze
 Content-Type: application/json
@@ -347,6 +353,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "jobId": "550e8400-e29b-41d4-a716-446655440000",
@@ -356,11 +363,13 @@ Content-Type: application/json
 ```
 
 ##### Check Job Status
+
 ```http
 GET /api/v1/papers/jobs/{jobId}
 ```
 
 **Response:**
+
 ```json
 {
   "jobId": "550e8400-e29b-41d4-a716-446655440000",
@@ -370,14 +379,17 @@ GET /api/v1/papers/jobs/{jobId}
 }
 ```
 
-**Status Values**: `PENDING`, `FETCHING_METADATA`, `EXTRACTING_PDF`, `ANALYZING`, `GENERATING_SUMMARY`, `FORMATTING_CITATIONS`, `COMPLETED`, `FAILED`
+**Status Values**: `PENDING`, `FETCHING_METADATA`, `EXTRACTING_PDF`, `ANALYZING`, `GENERATING_SUMMARY`,
+`FORMATTING_CITATIONS`, `COMPLETED`, `FAILED`
 
 ##### Get Analysis Results
+
 ```http
 GET /api/v1/papers/{arxivId}
 ```
 
 **Response:**
+
 ```json
 {
   "arxivId": "1706.03762",
@@ -406,6 +418,7 @@ GET /api/v1/papers/{arxivId}
 #### Q&A Chatbot
 
 ##### Ask Question About Paper
+
 ```http
 POST /api/v1/papers/{arxivId}/ask
 Content-Type: application/json
@@ -416,6 +429,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "questionId": "660e8400-e29b-41d4-a716-446655440001",
@@ -429,11 +443,13 @@ Content-Type: application/json
 #### PDF Statistics
 
 ##### Get PDF Statistics (Test Endpoint)
+
 ```http
 GET /api/v1/test/pdf/extract-stats/{arxivId}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -453,11 +469,13 @@ GET /api/v1/test/pdf/extract-stats/{arxivId}
 #### Health Check
 
 ##### Check Service Health
+
 ```http
 GET /api/v1/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "UP",
@@ -469,11 +487,13 @@ GET /api/v1/health
 #### Circuit Breaker Status
 
 ##### Get Circuit Breaker Metrics
+
 ```http
 GET /api/v1/circuitbreaker
 ```
 
 **Response:**
+
 ```json
 {
   "arxivService": {
@@ -496,6 +516,7 @@ GET /api/v1/circuitbreaker
 #### Using cURL
 
 **Submit paper for analysis:**
+
 ```bash
 curl -X POST http://localhost:8080/api/v1/papers/analyze \
   -H "Content-Type: application/json" \
@@ -503,16 +524,19 @@ curl -X POST http://localhost:8080/api/v1/papers/analyze \
 ```
 
 **Check job status:**
+
 ```bash
 curl http://localhost:8080/api/v1/papers/jobs/{jobId}
 ```
 
 **Get analysis results:**
+
 ```bash
 curl http://localhost:8080/api/v1/papers/1706.03762
 ```
 
 **Ask a question:**
+
 ```bash
 curl -X POST http://localhost:8080/api/v1/papers/1706.03762/ask \
   -H "Content-Type: application/json" \
@@ -520,6 +544,7 @@ curl -X POST http://localhost:8080/api/v1/papers/1706.03762/ask \
 ```
 
 **Get PDF statistics:**
+
 ```bash
 curl http://localhost:8080/api/v1/test/pdf/extract-stats/1706.03762
 ```
@@ -591,15 +616,15 @@ The React frontend provides a user-friendly interface for interacting with the A
 ### Features
 
 - **Three Analysis Modes**:
-  - Full Analysis (AI Summary)
-  - PDF Statistics Only
-  - Chatbot Mode
+    - Full Analysis (AI Summary)
+    - PDF Statistics Only
+    - Chatbot Mode
 
 - **User Experience**:
-  - Real-time loading states
-  - Error handling and display
-  - Responsive design
-  - Debounced chatbot to prevent spam
+    - Real-time loading states
+    - Error handling and display
+    - Responsive design
+    - Debounced chatbot to prevent spam
 
 ### Running the Frontend
 
@@ -624,11 +649,13 @@ The frontend will run on `http://localhost:3000` and automatically connect to th
 ### Running in Development Mode
 
 **Backend:**
+
 ```bash
 ./mvnw spring-boot:run
 ```
 
 **Frontend:**
+
 ```bash
 cd frontend && npm start
 ```
@@ -636,12 +663,14 @@ cd frontend && npm start
 ### Building for Production
 
 **Backend:**
+
 ```bash
 ./mvnw clean package
 java -jar target/researchpaperassistant-0.0.1-SNAPSHOT.jar
 ```
 
 **Frontend:**
+
 ```bash
 cd frontend
 npm run build
@@ -651,11 +680,13 @@ npm run build
 ### Testing
 
 **Backend Tests:**
+
 ```bash
 ./mvnw test
 ```
 
 **Frontend Tests:**
+
 ```bash
 cd frontend && npm test
 ```
@@ -663,12 +694,14 @@ cd frontend && npm test
 ### Accessing Swagger UI
 
 Once the backend is running, access interactive API documentation at:
+
 - Swagger UI: http://localhost:8080/swagger-ui.html
 - OpenAPI JSON: http://localhost:8080/api-docs
 
 ### H2 Console (Development)
 
 Access the in-memory H2 database console at:
+
 - URL: http://localhost:8080/h2-console
 - JDBC URL: `jdbc:h2:mem:testdb`
 - Username: `sa`
@@ -679,49 +712,49 @@ Access the in-memory H2 database console at:
 ### Planned Features
 
 1. **Paper Recommendations**
-   - Suggest similar papers based on content
-   - Topic-based recommendations
-   - Citation network analysis
+    - Suggest similar papers based on content
+    - Topic-based recommendations
+    - Citation network analysis
 
 2. **User Management**
-   - User authentication and authorization
-   - Personal API key management
-   - Usage tracking and limits
+    - User authentication and authorization
+    - Personal API key management
+    - Usage tracking and limits
 
 3. **Enhanced Storage**
-   - PostgreSQL database migration
-   - Persistent storage for papers and analyses
-   - User history and favorites
+    - PostgreSQL database migration
+    - Persistent storage for papers and analyses
+    - User history and favorites
 
 4. **Batch Processing**
-   - Analyze multiple papers at once
-   - Bulk import/export
-   - Scheduled analysis jobs
+    - Analyze multiple papers at once
+    - Bulk import/export
+    - Scheduled analysis jobs
 
 5. **Advanced Analytics**
-   - Paper difficulty trends
-   - Reading time analytics
-   - Popular topics and papers
+    - Paper difficulty trends
+    - Reading time analytics
+    - Popular topics and papers
 
 6. **Export Features**
-   - Export summaries to PDF
-   - Export citations to BibTeX file
-   - Share analysis results
+    - Export summaries to PDF
+    - Export citations to BibTeX file
+    - Share analysis results
 
 7. **Enhanced Chatbot**
-   - Conversation history
-   - Context-aware follow-up questions
-   - Paper comparison capabilities
+    - Conversation history
+    - Context-aware follow-up questions
+    - Paper comparison capabilities
 
 8. **Performance Improvements**
-   - Redis caching layer
-   - Message queue for async processing
-   - Horizontal scaling support
+    - Redis caching layer
+    - Message queue for async processing
+    - Horizontal scaling support
 
 9. **Additional AI Providers**
-   - Support for more AI models
-   - Provider fallback mechanisms
-   - Cost optimization strategies
+    - Support for more AI models
+    - Provider fallback mechanisms
+    - Cost optimization strategies
 
 10. **Compliance & Security**
     - Rate limiting per user
@@ -744,7 +777,4 @@ This is currently a personal project, but contributions and suggestions are welc
 - Apache Tika for PDF processing
 - Spring Boot community for excellent documentation
 
----
-
-**Built with ❤️ using Spring Boot and React**
 
